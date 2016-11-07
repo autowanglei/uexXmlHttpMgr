@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.zywx.wbpalmstar.base.BUtility;
 import org.zywx.wbpalmstar.widgetone.dataservice.WWidgetData;
 
+import android.os.AsyncTask;
 import android.os.Process;
 
 public class EHttpPost extends Thread implements HttpTask, HttpClientListener {
@@ -364,35 +365,40 @@ public class EHttpPost extends Thread implements HttpTask, HttpClientListener {
 	@Override
 	public void cancel() {
 		mCancelled = true;
-		if (null != mMultiData) {
-			mMultiData.clear();
-		}
-		if (null != mInStream) {
-			try {
-				mInStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if (null != mHttpPost) {
-			mHttpPost.abort();
-		}
-		if (null != mHttpClient) {
-			mHttpClient.getConnectionManager().shutdown();
-		}
-		try {
-			interrupt();
-		} catch (Exception e) {
-			;
-		}
-		mTimeOut = 0;
-		mUrl = null;
-		mRunning = false;
-		mCertPassword = null;
-		mCertPath = null;
-		mBody = null;
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (null != mMultiData) {
+                    mMultiData.clear();
+                }
+                if (null != mInStream) {
+                    try {
+                        mInStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (null != mHttpPost) {
+                    mHttpPost.abort();
+                }
+                if (null != mHttpClient) {
+                    mHttpClient.getConnectionManager().shutdown();
+                }
+                try {
+                    interrupt();
+                } catch (Exception e) {
+                    ;
+                }
+                mTimeOut = 0;
+                mUrl = null;
+                mRunning = false;
+                mCertPassword = null;
+                mCertPath = null;
+                mBody = null;
+                return null;
+            }
+        }.execute();
 	}
-
 
 	@Override
 	public void setBody(String body) {

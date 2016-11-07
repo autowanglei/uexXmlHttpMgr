@@ -23,6 +23,7 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONObject;
 import org.zywx.wbpalmstar.widgetone.dataservice.WWidgetData;
 
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Process;
 import android.util.Log;
@@ -305,22 +306,28 @@ public class EHttpGet extends Thread implements HttpTask {
 	@Override
 	public void cancel() {
 		mCancelled = true;
-		try {
-			if (null != mInStream) {
-				mInStream.close();
-			}
-			if (null != mErrorInStream) {
-				mErrorInStream.close();
-			}
-			interrupt();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mTimeOut = 0;
-		mUrl = null;
-		mRunning = false;
-		mConnection = null;
-		mClient = null;
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    if (null != mInStream) {
+                        mInStream.close();
+                    }
+                    if (null != mErrorInStream) {
+                        mErrorInStream.close();
+                    }
+                    interrupt();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                mTimeOut = 0;
+                mUrl = null;
+                mRunning = false;
+                mConnection = null;
+                mClient = null;
+                return null;
+            }
+        }.execute();
 	}
 
 	private byte[] toByteArray(HttpURLConnection conn) throws Exception {

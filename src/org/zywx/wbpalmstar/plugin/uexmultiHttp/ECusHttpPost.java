@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.zywx.wbpalmstar.base.BUtility;
 import org.zywx.wbpalmstar.widgetone.dataservice.WWidgetData;
 
+import android.os.AsyncTask;
 import android.os.Process;
 
 public class ECusHttpPost extends Thread implements HttpTask,
@@ -374,34 +375,40 @@ public class ECusHttpPost extends Thread implements HttpTask,
 	@Override
 	public void cancel() {
 		mCancelled = true;
-		if (null != mFormData) {
-			mFormData.clear();
-		}
-		if (null != mInStream) {
-			try {
-				mInStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if (null != mErrorInStream) {
-			try {
-				mErrorInStream.close();
-			} catch (Exception e) {
-			}
-		}
-		try {
-			interrupt();
-		} catch (Exception e) {
-			;
-		}
-		mTimeOut = 0;
-		mUrl = null;
-		mRunning = false;
-		mCertPassword = null;
-		mCertPath = null;
-		mHeaders = null;
-		mBody = null;
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (null != mFormData) {
+                    mFormData.clear();
+                }
+                if (null != mInStream) {
+                    try {
+                        mInStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (null != mErrorInStream) {
+                    try {
+                        mErrorInStream.close();
+                    } catch (Exception e) {
+                    }
+                }
+                try {
+                    interrupt();
+                } catch (Exception e) {
+                    ;
+                }
+                mTimeOut = 0;
+                mUrl = null;
+                mRunning = false;
+                mCertPassword = null;
+                mCertPath = null;
+                mHeaders = null;
+                mBody = null;
+                return null;
+            }
+        }.execute();
 	}
 
 	private byte[] toByteArray(HttpURLConnection conn) throws Exception {

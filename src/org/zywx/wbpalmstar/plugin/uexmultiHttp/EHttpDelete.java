@@ -20,6 +20,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.zywx.wbpalmstar.widgetone.dataservice.WWidgetData;
 
+import android.os.AsyncTask;
 import android.os.Process;
 
 public class EHttpDelete extends Thread implements HttpTask {
@@ -218,14 +219,20 @@ public class EHttpDelete extends Thread implements HttpTask {
 	@Override
 	public void cancel() {
 		mCancelled = true;
-		try {
-			interrupt();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mTimeOut = 0;
-		mUrl = null;
-		mRunning = false;
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    interrupt();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                mTimeOut = 0;
+                mUrl = null;
+                mRunning = false;
+                return null;
+            }
+        }.execute();
 	}
 
 	@Override
